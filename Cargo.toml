@@ -9,3 +9,4 @@ license = "MIT/Apache-2.0"
 
 [dependencies]
 rosc = "~0.10"
+snafu = "0.8.9"

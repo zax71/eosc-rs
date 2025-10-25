@@ -12,5 +12,12 @@ eos_desk.channel(5).remdim()
 eos_desk.channel(5).pan(180)
 eos_desk.channel(5).tilt(180)
 
+eos_desk.cue(5).record()
+eos_desk.go()
+
+eos_desk.live()
+eos_desk.blind()
+eos_desk.command("Chan 5 Thru 8 At 100")
+
 
 ```
