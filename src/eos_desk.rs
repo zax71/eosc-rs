@@ -6,9 +6,10 @@ use std::{
 use rosc::{OscError, OscMessage, OscPacket, OscType};
 use snafu::{ResultExt, Snafu};
 
+use crate::osc_sender::{OscSender, OscSenderError};
+
 pub struct EosDesk {
-    pub desk: (IpAddr, u16),
-    socket: UdpSocket,
+    osc_sender: OscSender,
 }
 
 #[derive(Debug, Snafu)]
@@ -31,51 +32,35 @@ pub enum EosDeskError {
 }
 
 impl EosDesk {
-    pub fn new(host: (IpAddr, u16), desk: (IpAddr, u16)) -> Result<Self, EosDeskError> {
-        let socket = UdpSocket::bind(host).context(FailedUDPSocketSnafu { to: host })?;
+    pub fn new(host: (IpAddr, u16), desk: (IpAddr, u16)) -> Result<Self, OscSenderError> {
+        let osc_sender = OscSender::new(host, desk)?;
 
-        Ok(Self { desk, socket })
+        Ok(Self { osc_sender })
     }
 
-    pub fn execute_cmd(&self, command: &str) -> Result<(), EosDeskError> {
-        let address = "/eos/newcmd";
-        let args = vec![OscType::String(format!("{command} ENTER"))];
-
-        let packet = OscPacket::Message(OscMessage {
-            addr: address.to_string(),
-            args: args,
-        });
-
-        let buf = rosc::encoder::encode(&packet).context(FailedPacketEncodingSnafu { address })?;
-        println!("{:#?}", buf.as_slice());
-
-        self.socket
-            .send_to(&buf.as_slice(), self.desk)
-            .context(FailedUDPSendSnafu {
-                data: buf,
-                to: self.desk,
-            })?;
+    /// Executes the stated command. Auto executes by appending ENTER to the end of said command
+    pub fn execute_cmd(&self, command: &str) -> Result<(), OscSenderError> {
+        self.osc_sender.send_osc(
+            "/eos/newcmd".to_string(),
+            vec![OscType::String(format!("{command} ENTER"))],
+        )?;
 
         Ok(())
     }
-}
 
-#[cfg(test)]
-mod tests {
-    use std::net::Ipv4Addr;
+    pub fn chan_intensity(&self, id: u16, value: u8) -> Result<(), OscSenderError> {
+        self.osc_sender
+            .send_osc(format!("/eos/chan/{id}"), vec![OscType::Int(value.into())])?;
 
-    use super::*;
+        Ok(())
+    }
 
-    #[test]
-    fn test_send_cmd() {
-        let desk: EosDesk = EosDesk::new(
-            (IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 8001),
-            (IpAddr::V4(Ipv4Addr::new(192, 168, 122, 95)), 8000),
-        )
-        .expect("Failed to init desk");
-        desk.execute_cmd("GROUP 7 AT 5")
-            .expect("Failed to send command");
+    pub fn chan_param(&self, id: u16, param: &str, value: i32) -> Result<(), OscSenderError> {
+        self.osc_sender.send_osc(
+            format!("/eos/chan/{id}/param/{param}"),
+            vec![OscType::Int(value)],
+        )?;
 
-        assert!(true)
+        Ok(())
     }
 }
