@@ -48,7 +48,7 @@ impl OscSender {
         })?;
 
         self.socket
-            .send_to(&data.as_slice(), self.target)
+            .send_to(data.as_slice(), self.target)
             .context(FailedUDPSendSnafu {
                 data,
                 to: self.target,

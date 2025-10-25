@@ -1,10 +1,7 @@
-use std::{
-    net::{IpAddr, UdpSocket},
-    vec,
-};
+use std::{net::IpAddr, vec};
 
-use rosc::{OscError, OscMessage, OscPacket, OscType};
-use snafu::{ResultExt, Snafu};
+use rosc::{OscError, OscType};
+use snafu::Snafu;
 
 use crate::osc_sender::{OscSender, OscSenderError};
 
