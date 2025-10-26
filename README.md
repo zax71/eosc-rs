@@ -12,7 +12,7 @@ eos_desk.channel(5).remdim()
 eos_desk.channel(5).pan(180)
 eos_desk.channel(5).tilt(180)
 
-eos_desk.cue(5).record()
+eos_desk.record_cue("5.7", 6.8)
 eos_desk.go()
 
 eos_desk.live()

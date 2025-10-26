@@ -11,5 +11,7 @@ fn main() {
     )
     .expect("Failed to init desk");
 
-    desk.channel(31).at(50).expect("failed to set 31 to 50");
+    desk.channel(31)
+        .remdim()
+        .expect("Failed to remdim channel 31")
 }

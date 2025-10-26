@@ -10,6 +10,6 @@ fn main() {
         (IpAddr::V4(Ipv4Addr::new(192, 168, 122, 95)), 8000),
     )
     .expect("Failed to init desk");
-    desk.execute_cmd("GROUP 7 AT 5")
+    desk.command("GROUP 7 AT 5")
         .expect("Failed to send command");
 }

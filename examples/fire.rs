@@ -11,5 +11,6 @@ fn main() {
     )
     .expect("Failed to init desk");
 
-    desk.channel(31).at(50).expect("failed to set 31 to 50");
+    desk.fire("0.14")
+        .expect("Failed to go to next cue on the desk")
 }

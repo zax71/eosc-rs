@@ -10,6 +10,7 @@ fn main() {
         (IpAddr::V4(Ipv4Addr::new(192, 168, 122, 95)), 8000),
     )
     .expect("Failed to init desk");
-    desk.chan_param(31, "pan", -90)
-        .expect("Failed to set param on desk")
+    desk.channel(31)
+        .pan(-90)
+        .expect("Failed to set pan on channel 31")
 }

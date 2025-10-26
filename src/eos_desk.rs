@@ -3,7 +3,10 @@ use std::{net::IpAddr, vec};
 use rosc::{OscError, OscType};
 use snafu::Snafu;
 
-use crate::osc_sender::{OscSender, OscSenderError};
+use crate::{
+    channel::Channel,
+    osc_sender::{OscSender, OscSenderError},
+};
 
 pub struct EosDesk {
     osc_sender: OscSender,
@@ -40,7 +43,7 @@ impl EosDesk {
 
     /// Executes the stated command. Auto executes by appending ENTER to the end of said command
     /// command: The command to be sent to the desk. e.g: "GROUP 5 FOCUS PALETTE 2"
-    pub fn execute_cmd(&self, command: &str) -> Result<(), OscSenderError> {
+    pub fn command(&self, command: &str) -> Result<(), OscSenderError> {
         self.osc_sender.send_osc(
             "/eos/newcmd".to_string(),
             vec![OscType::String(format!("{command} ENTER"))],
@@ -49,26 +52,33 @@ impl EosDesk {
         Ok(())
     }
 
-    /// Sets a channel's intensity to the specified value
-    /// id: The channel we are changing
-    /// value: The intensity of that channel, in percent.
-    pub fn chan_intensity(&self, id: u16, value: u8) -> Result<(), OscSenderError> {
-        self.osc_sender
-            .send_osc(format!("/eos/chan/{id}"), vec![OscType::Int(value.into())])?;
-
-        Ok(())
+    /// Creates a channel to be used later.
+    pub fn channel(&'_ self, channel: u32) -> Channel<'_> {
+        Channel {
+            osc_sender: &self.osc_sender,
+            channel,
+        }
     }
 
-    /// Sets a channel's parameter to the specified value.
-    /// id: The channel we are changing
-    /// param: The parameter to change. e.g: "pan" or "tilt"
-    /// value: what to set this parameter to. A value in degrees for pan and tilt
-    pub fn chan_param(&self, id: u16, param: &str, value: i32) -> Result<(), OscSenderError> {
-        self.osc_sender.send_osc(
-            format!("/eos/chan/{id}/param/{param}"),
-            vec![OscType::Int(value)],
-        )?;
+    /// Records the cue at cue number
+    /// cue_number: what number is the cue to be recorded? A string to stop floating point errors.
+    pub fn record_cue(&self, cue_number: &str, time: f32) -> Result<(), OscSenderError> {
+        let command: String = format!("Record Cue {} Time {}", cue_number, time);
+        self.command(&command)
+    }
 
-        Ok(())
+    /// Goes to the next cue
+    pub fn go(&self) -> Result<(), OscSenderError> {
+        self.osc_sender
+            .send_osc(" /eos/key/go_0".to_string(), vec![])
+    }
+
+    /// Goes to the specified cue
+    /// cue: The cue to go to, a string to avoid floating point errors
+    pub fn fire(&self, cue: &str) -> Result<(), OscSenderError> {
+        self.osc_sender.send_osc(
+            " /eos/cue/fire".to_string(),
+            vec![OscType::String(cue.to_string())],
+        )
     }
 }
