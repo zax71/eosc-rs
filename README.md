@@ -1,5 +1,10 @@
 # eosc-rs
 
+[![Doccumentation](https://img.shields.io/docsrs/eosc-rs)](https://docs.rs/eosc-rs/latest/eosc_rs/)
+[![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
+[![CI](https://github.com/zax71/eosc-rs/actions/workflows/publish.yml/badge.svg?branch=main)](https://github.com/zax71/eosc-rs/actions/workflows/publish.yml)
+[![Crates.io License](https://img.shields.io/crates/l/eosc-rs)](https://github.com/zax71/eosc-rs/blob/main/LICENSE)
+
 A wrapper for EOS OSC commands in Rust.
 
 ## Basic Usage
